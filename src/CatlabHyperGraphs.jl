@@ -8,16 +8,16 @@ using Catlab.Graphics
 # In this schema:
 
 # V represents the set of vertices.
-# H represents the set of hyperedges.
+# E represents the set of hyperedges.
 # HE represents the set of hyperedge-vertex pairs, i.e., the connections between hyperedges and vertices.
 # src is a morphism that connects a hyperedge-vertex pair to a hyperedge.
 # tgt is a morphism that connects a hyperedge-vertex pair to a vertex.
 """
 @present SchHyperGraph(FreeSchema) begin
     V::Ob
-    H::Ob
+    E::Ob
     HE::Ob
-    src::Hom(HE, H)
+    src::Hom(HE, E)
     tgt::Hom(HE, V)
 end
 
@@ -26,12 +26,8 @@ end
 
 @acset_type HyperGraph(SchHyperGraph, index=[:src, :tgt]) <: AbstractHyperGraph
 
-
 function is_directed_multigraph(h::HyperGraph)
-    # Get the number of hyperedges
-    num_hyperedges = nparts(h, :H)
-
-    for hyperedge in 1:num_hyperedges
+    for hyperedge in ne(h)
         # Get the vertices connected to the current hyperedge
         connected_vertices = incident(h, hyperedge, :src)
 
@@ -59,7 +55,7 @@ function hypergraph_to_graph(h::HyperGraph)
     end
 
     # Iterate through the hyperedges of the hypergraph
-    for hyperedge in parts(h, :H)
+    for hyperedge in edges(h)
         # Get the vertices connected to the hyperedge
         connected_vertices = h[incident(h, hyperedge, :src), :tgt]
 
@@ -74,14 +70,14 @@ function graph_to_hypergraph(g::Graph)
     # Create a new empty HyperGraph
     h = @acset HyperGraph begin
         V = nparts(g, :V)
-        H = nparts(g, :E)
+        E = nparts(g, :E)
         HE = 0
         src = Int[]
         tgt = Int[]
     end
 
     # Iterate through the edges of the graph
-    for edge in 1:nparts(g, :E)
+    for edge in edges(g)
         # Get the source and target vertices of the edge
         src_vertex = g[edge, :src]
         tgt_vertex = g[edge, :tgt]
