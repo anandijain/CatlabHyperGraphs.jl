@@ -27,7 +27,7 @@ end
 @acset_type HyperGraph(SchHyperGraph, index=[:src, :tgt]) <: AbstractHyperGraph
 
 function is_directed_multigraph(h::HyperGraph)
-    for hyperedge in ne(h)
+    for hyperedge in edges(h)
         # Get the vertices connected to the current hyperedge
         connected_vertices = incident(h, hyperedge, :src)
 
